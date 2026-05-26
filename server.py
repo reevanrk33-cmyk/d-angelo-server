@@ -51,6 +51,9 @@ pairs = [
     "AUD/JPY (OTC)", "CAD/CHF (OTC)", "EUR/AUD (OTC)", "EUR/CAD (OTC)", 
     "EUR/CHF (OTC)", "EUR/GBP (OTC)", "USD/ZAR (OTC)", "USD/MXN (OTC)"
 ]
+# बैकग्राउंड में लाइव हाइब्रिड डेटा स्ट्रीम को चालू करना
+stream_thread = threading.Thread(target=broker_websocket_stream, daemon=True)
+stream_thread.start()
 
 # एआई एल्गोरिदम के लिए लाइव डेटा डिक्शनरी
 live_market_data = {p: {"price": random.uniform(1.0000, 1.5000), "trend": 0} for p in pairs}
