@@ -26,7 +26,7 @@ def run_dummy_server():
 
 threading.Thread(target=run_dummy_server, daemon=True).start()
 
-# --- 2. Firebase पक्का कनेक्शन ---
+# --- 2. Firebase कनेक्शन ---
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred, {
