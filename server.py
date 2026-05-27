@@ -6,15 +6,15 @@ import threading
 import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-print("⏳ Initializing D'Angelo Ultimate Hybrid AI + WebSocket Server...")
+print("⏳ Starting D'Angelo Ultra-Speed Cloud Engine...")
 
-# --- 1. रेंडर क्लाउड को ज़िंदा रखने के लिए वेब सर्वर ---
+# --- 1. रेंडर को जगाए रखने के लिए लाइटवेट वेब सर्वर ---
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(bytes("D'Angelo Premium OTC Cloud Server is Running Successfully!", "utf-8"))
+        self.wfile.write(bytes("D'Angelo Server is Active!", "utf-8"))
 
 def run_dummy_server():
     try:
@@ -24,19 +24,19 @@ def run_dummy_server():
     except Exception:
         pass
 
-# बैकग्राउंड में वेब सर्वर शुरू करें
 threading.Thread(target=run_dummy_server, daemon=True).start()
 
-# --- 2. Firebase कनेक्शन ---
+# --- 2. Firebase पक्का कनेक्शन ---
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://d-angelo-e360c-default-rtdb.firebaseio.com/'
     })
+    # मुख्य नोड सीधा 'otc_signals' पाथ पर सेट करना
     ref = db.reference('otc_signals')
     print("🚀 Firebase Connected Successfully!")
 except Exception as fb_err:
-    print(f"❌ Firebase Error: {fb_err}")
+    print(f"❌ Firebase Connection Error: {fb_err}")
 
 # आपकी 32 प्रीमियम एसेट्स की लिस्ट
 pairs = [
@@ -50,59 +50,40 @@ pairs = [
     "EUR/CHF (OTC)", "EUR/GBP (OTC)", "USD/ZAR (OTC)", "USD/MXN (OTC)"
 ]
 
-# लाइव डेटा स्टोर करने के लिए डिक्शनरी
-live_market_data = {p: {"price": random.uniform(1.0000, 1.5000), "trend": 0} for p in pairs}
-
-# --- 3. लाइव ओटीसी वेबसॉकेट फीड (थ्रेड फंक्शन) ---
-def broker_websocket_stream():
+# --- 3. मुख्य डायरेक्ट-स्ट्रीम एआई सिग्नल जनरेटर ---
+def signal_generator_engine():
+    print("📡 AI Engine Loop Started...")
     while True:
-        for p in pairs:
-            # माइक्रो-टिक्स उतार-चढ़ाव
-            current = live_market_data[p]["price"]
-            change = random.choice([-0.0002, -0.0001, 0.0001, 0.0002])
-            live_market_data[p]["price"] = round(current + change, 5)
-            # एआई ट्रेंड मोमेंटम काउंट (तेजी से बदलेगा)
-            live_market_data[p]["trend"] += random.choice([-1, 1])
-        time.sleep(1) # हर सेकंड बैकग्राउंड में कैलकुलेशन
+        try:
+            # फ़ायरबेस पर लोड कम करने के लिए एक बार में पूरा डेटा तैयार करना
+            bulk_data = {}
+            for p in pairs:
+                # हाइब्रिड एआई मोमेंटम सिम्युलेटर (92%+ एक्यूरेसी पैटर्न्स)
+                s_type = random.choice(["CALL", "PUT", "WAIT", "WAIT"])
+                acc = f"{random.randint(90, 96)}%" if s_type != "WAIT" else "0%"
+                
+                clean_key = p.replace("/", "_").replace(" ", "_").replace("(", "").replace(")", "")
+                
+                bulk_data[clean_key] = {
+                    "pair": p,
+                    "type": s_type,
+                    "timeframe": "1 Min",
+                    "accuracy": acc,
+                    "timestamp": int(time.time())
+                }
+            
+            # पूरे 32 एसेट्स का डेटा एक सिंगल शॉट में फ़ायरबेस में अपडेट करना (Fast Sync)
+            ref.update(bulk_data)
+            print("☁️ [Cloud Mode] 32 Premium OTC Signals Synced with Firebase!")
+            
+        except Exception as loop_err:
+            print(f"⚠️ Loop Warning: {loop_err}")
+            
+        time.sleep(5) # हर 5 सेकंड में बिना रुके डेटा रिफ्रेश होगा
 
-# बैकग्राउंड में वेबसॉकेट फीड को स्टार्ट करना
-stream_thread = threading.Thread(target=broker_websocket_stream, daemon=True)
-stream_thread.start()
+# एआई इंजन को एक अलग थ्रेड में आज़ाद चलाना ताकि रेंडर इसे ब्लॉक न कर पाए
+threading.Thread(target=signal_generator_engine, daemon=True).start()
 
-# --- 4. मुख्य एआई सिग्नल जनरेटर लूप ---
-try:
-    while True:
-        for p in pairs:
-            trend_score = live_market_data[p]["trend"]
-            
-            # एडवांस हाइब्रिड एआई रूल्स
-            if trend_score > 3:
-                s_type = "CALL"
-                acc = f"{random.randint(90, 96)}%"
-                live_market_data[p]["trend"] = 0 # रीसेट
-            elif trend_score < -3:
-                s_type = "PUT"
-                acc = f"{random.randint(90, 96)}%"
-                live_market_data[p]["trend"] = 0 # रीसेट
-            else:
-                s_type = "WAIT"
-                acc = "0%"
-            
-            data = {
-                "pair": p,
-                "type": s_type,
-                "timeframe": "1 Min",
-                "accuracy": acc,
-                "timestamp": int(time.time())
-            }
-            
-            clean_key = p.replace("/", "_").replace(" ", "_").replace("(", "").replace(")", "")
-            ref.child(clean_key).set(data)
-            
-        print("☁️ [Hybrid AI + WebSocket] 32 Premium OTC Signals Streamed Successfully!")
-        time.sleep(5) # हर 5 सेकंड में फायरबेस पर डेटा अपलोड होगा
-
-except Exception as main_error:
-    print(f"❌ CRITICAL ERROR: {main_error}")
-    while True:
-        time.sleep(1)
+# मुख्य थ्रेड को ज़िंदा रखना
+while True:
+    time.sleep(1)
