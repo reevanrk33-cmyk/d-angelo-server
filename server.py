@@ -32,7 +32,6 @@ try:
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://d-angelo-e360c-default-rtdb.firebaseio.com/'
     })
-    # मुख्य नोड सीधा 'otc_signals' पाथ पर सेट करना
     ref = db.reference('otc_signals')
     print("🚀 Firebase Connected Successfully!")
 except Exception as fb_err:
@@ -55,13 +54,10 @@ def signal_generator_engine():
     print("📡 AI Engine Loop Started...")
     while True:
         try:
-            # फ़ायरबेस पर लोड कम करने के लिए एक बार में पूरा डेटा तैयार करना
             bulk_data = {}
             for p in pairs:
-                # हाइब्रिड एआई मोमेंटम सिम्युलेटर (92%+ एक्यूरेसी पैटर्न्स)
                 s_type = random.choice(["CALL", "PUT", "WAIT", "WAIT"])
                 acc = f"{random.randint(90, 96)}%" if s_type != "WAIT" else "0%"
-                
                 clean_key = p.replace("/", "_").replace(" ", "_").replace("(", "").replace(")", "")
                 
                 bulk_data[clean_key] = {
@@ -72,16 +68,15 @@ def signal_generator_engine():
                     "timestamp": int(time.time())
                 }
             
-            # पूरे 32 एसेट्स का डेटा एक सिंगल शॉट में फ़ायरबेस में अपडेट करना (Fast Sync)
             ref.update(bulk_data)
             print("☁️ [Cloud Mode] 32 Premium OTC Signals Synced with Firebase!")
             
         except Exception as loop_err:
             print(f"⚠️ Loop Warning: {loop_err}")
             
-        time.sleep(5) # हर 5 सेकंड में बिना रुके डेटा रिफ्रेश होगा
+        time.sleep(5)
 
-# एआई इंजन को एक अलग थ्रेड में आज़ाद चलाना ताकि रेंडर इसे ब्लॉक न कर पाए
+# एआई इंजन को अलग थ्रेड में शुरू करना
 threading.Thread(target=signal_generator_engine, daemon=True).start()
 
 # मुख्य थ्रेड को ज़िंदा रखना
